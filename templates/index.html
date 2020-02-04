@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>Iris API</title>
+        <link rel="stylesheet" href="{{ url_for('static', path='/bootstrap.css') }}" />
+        <link rel="stylesheet" href="{{ url_for('static', path='/style.css') }}" />
+        <link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static', path='/favicon.ico') }}" />
+    </head>
+    <body>
+        <nav class="navbar navbar-light bg-light fixed-top">
+            <div class="container">
+                <a href="#" class="navbar-brand"><img class="img-header" src="{{ url_for('static', path='/flower.svg') }}" height="30" width="30" /> Iris API</a>
+                <ul class="navbar-nav" style="display: inline;">
+                    <li class="nav-item">
+                        <a href="https://github.com/avramaral" class="nav-link" target="_blank"><img class="img-header" src="{{ url_for('static', path='/github.svg') }}" height="20" width="20"/></a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="mailto:avramaral@gmail.com" class="nav-link"><img class="img-header" src="{{ url_for('static', path='/mail.svg') }}" height="20" width="20"/></a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+        <div class="container">
+            <div class="title">
+                <h1 class="h2 text-center">Iris API</h1>
+                <h2 class="h5 text-center">Modelos de classificação para o conjunto de dados <a href="https://archive.ics.uci.edu/ml/datasets/iris" target="_blank">Iris</a></h2>
+            </div>
+
+            <div class="content text-monospace">
+                <p>Essa API (<a href="https://github.com/avramaral/IrisAPI" target="_blank">código no GitHub</a>), construída com o framework <a href="https://fastapi.tiangolo.com/" target="_blank">Fast API</a>, fornece duas rotas para lidar com o conjunto de dados desejado:</p>
+                <ol>
+                    <li><span class="mark">/data/</span>&emsp;&emsp;&emsp;&emsp;&rarr; Aqui, basta fazer uma requisição utilizando o método <span class="mark">GET</span>. O resultado é serializado em formato <span class="mark">JSON</span>.</li>
+
+                    <li>
+                        <span class="mark">/predict/</span>&emsp;&rarr; Aqui, basta fazer uma requisição utilizando o método <span class="mark">POST</span>. Nesse caso:
+                        <ol>
+                            <li>
+                                É possível incluir um parâmetro de query chamado de <span class="mark">modelName</span>, associando a ele uma das seguintes opções: <span class="mark">LogisticRegression</span>, <span class="mark">KNN</span>, <span class="mark">MultiLayerPerceptron</span> (a.k.a. "NeuralNetwork") ou
+                                <span class="mark">SupportVectorClassifier</span>. Assim, a rota ficaria <span class="mark">/predict?modelName=&lt;NomeDoModelo&gt;</span>, com <span class="mark">LogisticRegression</span> como valor padrão.
+                            </li>
+                            <li>
+                                É necessário incluir no corpo da requisição os valores para as seguintes quantidades:
+                                <code>{ "sepalLen": 0.0, "sepalWid": 0.0, "petalLen": 0.0, "petalWid": 0.0 }</code>.
+                            </li>
+                        </ol>
+                    </li>
+                </ol>
+            </div>
+
+            <h3 class="h3 model">Modelos</h3>
+            <div class="content text-monospace">
+                Os modelos foram ajustados utilizando a biblioteca Scikit-learn. O código para o ajuste de cada modelo é mostrado abaixo:
+                <div class="sub-content">
+                    <ul class="models">
+                        <li>
+                            <span class="mark">LogisticRegression</span>
+                            <div class="card code">
+                                <div class="card-body pt-0 pb-0 my-auto">
+                                    <pre><code>
+from sklearn.linear_model import LogisticRegression
+
+model = LogisticRegression(multi_class = 'ovr', max_iter = 1000).fit(X, y)
+                                    </code></pre>
+                                </div>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="mark">KNN</span>
+                            <div class="card code">
+                                <div class="card-body pt-0 pb-0 my-auto">
+                                    <pre><code>
+from sklearn.neighbors import KNeighborsClassifier
+
+model = KNeighborsClassifier(n_neighbors = 5).fit(X, y)
+                                    </code></pre>
+                                </div>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="mark">MultiLayerPerceptron</span>
+                            <div class="card code">
+                                <div class="card-body pt-0 pb-0 my-auto">
+                                    <pre><code>
+from sklearn.neural_network import MLPClassifier
+
+model = MLPClassifier(hidden_layer_sizes = (32, 32, 32), max_iter = 1000).fit(X, y)
+                                    </code></pre>
+                                </div>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="mark">SupportVectorClassifier</span>
+                            <div class="card code">
+                                <div class="card-body pt-0 pb-0 my-auto">
+                                    <pre><code>
+from sklearn.svm import SVC
+
+model = SVC(decision_function_shape = 'ovr', max_iter = 1000).fit(X, y)
+                                    </code></pre>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3 class="h3 example">Exemplos</h3>
+            <div class="content text-monospace">
+                <ol>
+                    <li>
+                        No caso de uma requisição feita a partir da rota <span class="mark">/data/</span>, utilizando o método <span class="mark">GET</span>, vamos obter:
+                        <pre class="response"><code>
+{
+    "1": {
+    "sepalLen": 5.1,
+    "sepalWid": 3.5,
+    "petalLen": 1.4,
+    "petalWid": 0.2,
+    "flowercl": "Iris-Setosa"
+    },
+    "2": {
+    "sepalLen": 4.9,
+    "sepalWid": 3,
+    "petalLen": 1.4,
+    "petalWid": 0.2,
+    "flowercl": "Iris-Setosa"
+    },  
+        [...]
+                            </code></pre>
+                    </li>
+                    <li>
+                        No caso de uma requisição feita a partir da rota <span class="mark">/predict?modelName=LogisticRegression</span>, utilizando o método <span class="mark">POST</span>, e enviando no corpo da requisição as quantidades
+                        <code>{ "sepalLen": 7.2, "sepalWid": 2.7, "petalLen": 6, "petalWid": 1.8 }</code>, vamos obter:
+                        <pre class="response"><code>
+{
+    "sepalLen": 7.2,
+    "sepalWid": 2.7,
+    "petalLen": 6,
+    "petalWid": 1.8,
+    "modelName": "LogisticRegression",
+    "prediction": 2
+}
+                        </code></pre>
+                        Aqui, o que nos interessa é o valor <code>{ "prediction": 2 }</code>, que determina que a flor que possui as dimensões informadas é da espécie "Iris-Virginica". Para referência, se <span class="mark">prediction</span> for <span class="mark">0</span>, então a planta é da espécie "Iris-Setosa"; se
+                        for <span class="mark">1</span> é "Iris-Versicolour", e, como vimos, se for <span class="mark">2</span>, é "Iris-Virginica".
+                    </li>
+                </ol>
+            </div>
+        </div>
+        <nav class="navbar navbar-light bg-light fixed-bottom">
+            <div class="container justify-content-center">
+                <p class="footer-adj">Escrito por <a href="https://avramaral.github.io/" target="_blank">André Victor</a>.</p>
+            </div>
+        </nav>
+    </body>
+</html>
